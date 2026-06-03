@@ -1,0 +1,15 @@
+{
+  "stock_code": "005930",
+  "stock_name": "삼성전자",
+  "price": 360500.0,
+  "market_value": 2107583400000000,
+  "per": 29.14,
+  "eps": 12372.0,
+  "pbr": 5.01,
+  "bps": 71907.0,
+  "dividend_yield": 0.46,
+  "dividend": 1668.0,
+  "high_52w": 377000.0,
+  "low_52w": 56800.0,
+  "bizdate": "20260602"
+}

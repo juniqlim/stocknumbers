@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>stocknumbers — 한국주식 펀더멘털</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
   :root { --line:#e5e7eb; --muted:#6b7280; --neg:#dc2626; --pos:#16a34a; --hl:#fffbeb; }
   * { box-sizing:border-box; }
@@ -42,91 +43,7 @@
 
 <script>
 const STOCK = new URLSearchParams(location.search).get("code") || "005930";
-let DATA, PERIODS, QUOTE;
-
-// 핵심지표 정의 (account_id 우선, 없으면 account_nm 매칭)
-const KEY = [
-  { id:"ifrs-full_Revenue", label:"매출액", hl:true },
-  { calc:"rev_yoy", label:"매출 성장률", unit:"pct" },
-  { id:"ifrs-full_GrossProfit", label:"매출총이익" },
-  { id:"dart_OperatingIncomeLoss", label:"영업이익", hl:true },
-  { calc:"opm", label:"영업이익률", unit:"pct" },
-  { id:"ifrs-full_ProfitLoss", label:"당기순이익", hl:true },
-  { calc:"npm", label:"순이익률", unit:"pct" },
-  { id:"ifrs-full_BasicEarningsLossPerShare", label:"EPS", unit:"won" },
-  { sep:true },
-  { id:"ifrs-full_Assets", label:"자산총계" },
-  { id:"ifrs-full_Liabilities", label:"부채총계" },
-  { id:"ifrs-full_Equity", label:"자본총계", hl:true },
-  { calc:"roe", label:"ROE", unit:"pct" },
-  { calc:"debt", label:"부채비율", unit:"pct" },
-  { sep:true },
-  { nm:"영업활동현금흐름", label:"영업현금흐름", hl:true },
-];
-
-function lookup(sel, period){
-  for (const sj of ["IS","BS","CF"]){
-    for (const r of DATA.statements[sj]){
-      if ((sel.id && r.account_id === sel.id) || (sel.nm && r.account_nm === sel.nm))
-        return r[period];
-    }
-  }
-  return null;
-}
-
-function calc(key, period){
-  const at = sel => lookup(sel, period);
-  const div = (a,b) => (a!==null && b) ? a/b*100 : null;
-  const rev = at({id:"ifrs-full_Revenue"});
-  if (key==="opm")  return div(at({id:"dart_OperatingIncomeLoss"}), rev);
-  if (key==="npm")  return div(at({id:"ifrs-full_ProfitLoss"}), rev);
-  if (key==="roe")  return div(at({id:"ifrs-full_ProfitLoss"}), at({id:"ifrs-full_Equity"}));
-  if (key==="debt") return div(at({id:"ifrs-full_Liabilities"}), at({id:"ifrs-full_Equity"}));
-  if (key==="rev_yoy"){
-    const order = ["bfefrmtrm","frmtrm","thstrm"];
-    const i = order.indexOf(period);
-    if (i<=0) return null;
-    const cur = at({id:"ifrs-full_Revenue"});
-    const prev = lookup({id:"ifrs-full_Revenue"}, order[i-1]);
-    return (cur!==null && prev) ? (cur-prev)/Math.abs(prev)*100 : null;
-  }
-  return null;
-}
-
-function fmt(v, unit){
-  if (v === null || v === undefined) return ["-", ""];
-  if (unit==="pct") return [v.toLocaleString("ko-KR",{maximumFractionDigits:1})+"%", v<0?"neg":""];
-  if (unit==="won") return [Math.round(v).toLocaleString("ko-KR"), v<0?"neg":""];
-  const e = v/1e8;
-  return [e.toLocaleString("ko-KR",{maximumFractionDigits:1}), v<0?"neg":""];
-}
-
-function cols(){
-  return (PERIODS.bfefrmtrm ? ["bfefrmtrm","frmtrm","thstrm"] : ["frmtrm","thstrm"]);
-}
-
-function table(headFirst, head, bodyRows){
-  const cs = cols();
-  return `<div class="wrap"><table>`+
-    `<thead><tr><th>${headFirst}</th>${cs.map(c=>`<th>${PERIODS[c]}</th>`).join("")}</tr></thead>`+
-    `<tbody>${bodyRows}</tbody></table></div>`;
-}
-
-function summarySection(){
-  const cs = cols();
-  const rows = KEY.map(m => {
-    if (m.sep) return `<tr class="sep"><td colspan="${cs.length+1}"></td></tr>`;
-    const cells = cs.map(c => {
-      const v = m.calc ? calc(m.calc, c) : lookup(m, c);
-      const [t,cls] = fmt(v, m.unit);
-      return `<td class="${cls}">${t}</td>`;
-    }).join("");
-    return `<tr class="${m.hl?'hl':''}"><td>${m.label}</td>${cells}</tr>`;
-  }).join("");
-  return `<section><h2>핵심지표</h2>`+
-    `<div class="secunit">단위: 억원 · 성장률/비율 % · EPS 원</div>`+
-    table("지표", null, rows)+`</section>`;
-}
+let DATA, PERIODS, QUOTE, ANNUAL, QUARTER, BALANCE;
 
 // 밸류에이션 카드 정의
 const VAL = [
@@ -162,15 +79,93 @@ function valuationSection(){
     `<div class="cards">${cards}</div></section>`;
 }
 
+// 연간 실적: data/<code>_annual.json 이 있으면 노트의 큐레이션 표를 그대로 렌더
+function annualClass(cell){
+  if (cell === "적자" || /^-\d/.test(cell) || /^~-/.test(cell)) return "neg";
+  if (cell === "흑전" || /^\+/.test(cell)) return "pos";
+  return "";
+}
+
+// 연도가 왼쪽 행, 지표가 위쪽 열인 year-row 표 (연간실적·재무상태표 공용)
+function yearTable(obj){
+  if (!obj) return "";
+  const hl = new Set(obj.highlight || []);
+  const head = obj.headers.map(h=>`<th>${h}</th>`).join("");
+  const body = obj.rows.map(r => {
+    const cells = r.map((c,i)=>i===0?"":`<td class="${annualClass(c)}">${c}</td>`).join("");
+    return `<tr class="${hl.has(r[0])?'hl':''}"><td>${r[0]}</td>${cells}</tr>`;
+  }).join("");
+  return `<section><h2>${obj.title || ""}</h2>`+
+    `<div class="secunit">${obj.unit || ""}</div>`+
+    `<div class="wrap"><table><thead><tr>${head}</tr></thead>`+
+    `<tbody>${body}</tbody></table></div></section>`;
+}
+
+// "1,846" "17.8%" "+53.2%" "~8%" "-22" → 숫자, "적자"/"흑전"/"-"/"" → null
+function pnum(s){
+  if (s == null) return null;
+  s = String(s).replace(/,/g,"").replace(/%/g,"").replace(/[+~]/g,"").trim();
+  if (s==="" || s==="-" || s==="적자" || s==="흑전") return null;
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+const CHART_PALETTE = ["#2563eb","#dc2626","#16a34a","#d97706","#7c3aed","#0891b2",
+  "#db2777","#65a30d","#475569","#ea580c","#0d9488","#9333ea","#e11d48","#4f46e5"];
+const CHART_EOK = new Set(["매출","영업이익","순이익","영업CF","CAPEX","생산능력","FCF"]); // 막대(억원,좌축)
+const CHART_DEFAULT = new Set(["매출","영업이익","OPM"]); // 처음에 켜둘 지표
+
+let CHART;
+function buildChart(){
+  if (!ANNUAL || typeof Chart === "undefined") return;
+  const labels = ANNUAL.rows.map(r => r[0]);
+  const datasets = ANNUAL.headers.slice(1).map((h,i) => {
+    const ci = i + 1, eok = CHART_EOK.has(h), color = CHART_PALETTE[i % CHART_PALETTE.length];
+    return {
+      label: h,
+      data: ANNUAL.rows.map(r => pnum(r[ci])),
+      type: eok ? "bar" : "line",
+      yAxisID: eok ? "y" : "y2",
+      borderColor: color, backgroundColor: eok ? color+"cc" : color,
+      tension: 0.2, spanGaps: true, borderWidth: eok ? 0 : 2, pointRadius: eok ? 0 : 2.5,
+      hidden: !CHART_DEFAULT.has(h),
+    };
+  });
+  if (CHART) CHART.destroy();
+  CHART = new Chart(document.getElementById("annualChart"), {
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: {
+        y:  { position: "left",  title: { display: true, text: "억원" } },
+        y2: { position: "right", title: { display: true, text: "% · 배수" }, grid: { drawOnChartArea: false } },
+      },
+      plugins: { legend: { position: "bottom" } },
+    },
+  });
+}
+
+function chartSection(){
+  if (!ANNUAL) return "";
+  return `<section><h2>연간 추이</h2>`+
+    `<div class="secunit">범례 클릭으로 지표 토글 · 막대=억원(좌축), 선=%·배수(우축)</div>`+
+    `<div style="position:relative;height:360px"><canvas id="annualChart"></canvas></div></section>`;
+}
+
 function render(){
-  document.getElementById("main").innerHTML = valuationSection() + summarySection();
+  document.getElementById("main").innerHTML =
+    valuationSection() + chartSection() + yearTable(ANNUAL) + yearTable(QUARTER) + yearTable(BALANCE);
+  buildChart();
 }
 
 Promise.all([
   fetch(`data/${STOCK}.json`).then(r=>r.json()),
   fetch(`data/${STOCK}_quote.json`).then(r=>r.json()).catch(()=>null),
-]).then(([d, q])=>{
-  DATA = d; PERIODS = d.periods; QUOTE = q;
+  fetch(`data/${STOCK}_annual.json`).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch(`data/${STOCK}_quarter.json`).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch(`data/${STOCK}_balance.json`).then(r=>r.ok?r.json():null).catch(()=>null),
+]).then(([d, q, a, qt, b])=>{
+  DATA = d; PERIODS = d.periods; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b;
   document.getElementById("title").textContent = `${d.corp_name} (${d.stock_code})`;
   document.getElementById("sub").textContent =
     `${d.bsns_year} 사업연도 · ${d.fs_div==="CFS"?"연결":"개별"}재무제표`;

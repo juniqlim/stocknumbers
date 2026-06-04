@@ -2,7 +2,15 @@
 
 종목별 정적 JSON을 브라우저(`index.html`)가 직접 fetch해 표·차트로 보여주는 정적 사이트. 백엔드 없음.
 
-열기: `python3 -m http.server` 후 `index.html?code=<종목코드>` (기본 005930).
+열기: `python3 -m http.server` 후 `index.html?code=<종목코드>` (기본 005930). 헤더의 셀렉트박스로 종목 전환.
+
+## 종목 목록 매니페스트 (`data/companies.json`)
+
+셀렉트박스에 뜨는 종목 목록. **새 회사 추가 시 여기에 한 줄 등록**해야 드롭다운에 나온다.
+
+```json
+[ { "code": "018290", "name": "브이티" }, { "code": "003350", "name": "한국화장품제조" } ]
+```
 
 ## 종목당 파일 (`data/<code>*.json`)
 

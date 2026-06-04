@@ -32,18 +32,29 @@
   .card { background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
   .cl { color:var(--muted); font-size:12px; }
   .cv { font-size:18px; font-weight:600; margin-top:2px; }
+  #picker { margin-top:10px; font-size:14px; padding:6px 10px; border:1px solid var(--line);
+            border-radius:8px; background:#fff; color:#111; max-width:100%; }
 </style>
 </head>
 <body>
 <header>
   <h1 id="title">로딩…</h1>
-  <div class="sub" id="sub"></div>
+  <select id="picker" onchange="location.search='?code='+this.value"></select>
 </header>
 <main id="main"></main>
 
 <script>
 const STOCK = new URLSearchParams(location.search).get("code") || "005930";
 let DATA, PERIODS, QUOTE, ANNUAL, QUARTER, BALANCE;
+
+// 종목 선택 셀렉트박스 (data/companies.json 매니페스트 기반)
+fetch("data/companies.json").then(r=>r.json()).then(list=>{
+  const sel = document.getElementById("picker");
+  if (!list.some(c=>c.code===STOCK)) list = [{code:STOCK, name:STOCK}, ...list];
+  sel.innerHTML = list.map(c=>
+    `<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`
+  ).join("");
+}).catch(()=>{ document.getElementById("picker").style.display = "none"; });
 
 // 밸류에이션 카드 정의
 const VAL = [
@@ -167,8 +178,6 @@ Promise.all([
 ]).then(([d, q, a, qt, b])=>{
   DATA = d; PERIODS = d.periods; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b;
   document.getElementById("title").textContent = `${d.corp_name} (${d.stock_code})`;
-  document.getElementById("sub").textContent =
-    `${d.bsns_year} 사업연도 · ${d.fs_div==="CFS"?"연결":"개별"}재무제표`;
   render();
 }).catch(e => document.getElementById("title").textContent = "데이터 없음: "+e);
 </script>

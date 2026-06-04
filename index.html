@@ -32,20 +32,25 @@
   .card { background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
   .cl { color:var(--muted); font-size:12px; }
   .cv { font-size:18px; font-weight:600; margin-top:2px; }
-  #picker { margin-top:10px; font-size:14px; padding:6px 10px; border:1px solid var(--line);
+  #picker, #ccy { margin-top:10px; font-size:14px; padding:6px 10px; border:1px solid var(--line);
             border-radius:8px; background:#fff; color:#111; max-width:100%; }
+  #ccy { margin-left:6px; }
 </style>
 </head>
 <body>
 <header>
   <h1 id="title">로딩…</h1>
   <select id="picker" onchange="location.search='?code='+this.value"></select>
+  <select id="ccy" onchange="setCcy(this.value)"></select>
 </header>
 <main id="main"></main>
 
 <script>
 const STOCK = new URLSearchParams(location.search).get("code") || "005930";
-let DATA, PERIODS, QUOTE, ANNUAL, QUARTER, BALANCE;
+let DATA, QUOTE, ANNUAL, QUARTER, BALANCE;
+
+const FX = 1380;            // USD/KRW 근사 (2026)
+let DISPLAY_CCY = "KRW";    // 표시 통화 (종목 native로 초기화)
 
 // 종목 선택 셀렉트박스 (data/companies.json 매니페스트 기반)
 fetch("data/companies.json").then(r=>r.json()).then(list=>{
@@ -54,7 +59,47 @@ fetch("data/companies.json").then(r=>r.json()).then(list=>{
   sel.innerHTML = list.map(c=>
     `<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`
   ).join("");
+  const me = list.find(c=>c.code===STOCK);
+  if (me) document.getElementById("title").textContent = `${me.name} (${me.code})`;
 }).catch(()=>{ document.getElementById("picker").style.display = "none"; });
+
+// ── 통화 표시 ────────────────────────────────────────────────
+function nativeCcy(){ return (ANNUAL||QUARTER||BALANCE||{}).currency || "KRW"; }
+function natUnit(nat){ return nat==="USD" ? "십억$" : "억원"; }
+function dispUnit(nat){               // 현재 표시중인 금액 단위 라벨
+  if (DISPLAY_CCY===nat) return natUnit(nat);
+  return DISPLAY_CCY==="USD" ? "백만$" : "조원";
+}
+const MONEY_DENY = new Set(["PER(연말)","PER"]);   // 숫자지만 금액 아님(배수)
+function moneyCols(obj){
+  if (obj.money_cols) return new Set(obj.money_cols);
+  const set = new Set();                            // 추론: 순수 숫자 컬럼
+  obj.headers.forEach((h,i)=>{
+    if (i===0 || MONEY_DENY.has(h)) return;
+    const cs = obj.rows.map(r=>r[i]).filter(c=>c && c!=="-");
+    if (cs.length && cs.every(c=>/^[+-]?[\d,]+(\.\d+)?$/.test(c))) set.add(h);
+  });
+  return set;
+}
+function convVal(v, nat){             // 숫자값을 표시통화로 환산
+  if (v===null || DISPLAY_CCY===nat) return v;
+  if (nat==="KRW" && DISPLAY_CCY==="USD") return v*100/FX;   // 억원 → 백만$
+  if (nat==="USD" && DISPLAY_CCY==="KRW") return v*FX/1000;  // 십억$ → 조원
+  return v;
+}
+function convCell(c, nat){
+  if (DISPLAY_CCY===nat) return c;
+  const v = parseFloat(String(c).replace(/,/g,""));
+  if (isNaN(v)) return c;
+  const o = convVal(v, nat), a = Math.abs(o);
+  return a<100 ? o.toFixed(1) : Math.round(o).toLocaleString("en-US");
+}
+function setCcy(v){ DISPLAY_CCY = v; render(); syncCcy(); }
+function syncCcy(){
+  const sel = document.getElementById("ccy");
+  sel.innerHTML = `<option value="KRW">원화 ₩</option><option value="USD">달러 $</option>`;
+  sel.value = DISPLAY_CCY;
+}
 
 // 밸류에이션 카드 정의
 const VAL = [
@@ -100,14 +145,21 @@ function annualClass(cell){
 // 연도가 왼쪽 행, 지표가 위쪽 열인 year-row 표 (연간실적·재무상태표 공용)
 function yearTable(obj){
   if (!obj) return "";
+  const nat = obj.currency || "KRW", money = moneyCols(obj);
   const hl = new Set(obj.highlight || []);
   const head = obj.headers.map(h=>`<th>${h}</th>`).join("");
   const body = obj.rows.map(r => {
-    const cells = r.map((c,i)=>i===0?"":`<td class="${annualClass(c)}">${c}</td>`).join("");
+    const cells = r.map((c,i)=>{
+      if (i===0) return "";
+      const disp = money.has(obj.headers[i]) ? convCell(c, nat) : c;
+      return `<td class="${annualClass(c)}">${disp}</td>`;   // 색은 원본 부호 기준
+    }).join("");
     return `<tr class="${hl.has(r[0])?'hl':''}"><td>${r[0]}</td>${cells}</tr>`;
   }).join("");
+  const cap = (obj.unit||"") +
+    (DISPLAY_CCY!==nat ? ` · 표시: ${dispUnit(nat)} (환율 ${FX.toLocaleString("ko-KR")}원/$)` : "");
   return `<section><h2>${obj.title || ""}</h2>`+
-    `<div class="secunit">${obj.unit || ""}</div>`+
+    `<div class="secunit">${cap}</div>`+
     `<div class="wrap"><table><thead><tr>${head}</tr></thead>`+
     `<tbody>${body}</tbody></table></div></section>`;
 }
@@ -129,12 +181,13 @@ const CHART_DEFAULT = new Set(["매출","영업이익","OPM"]); // 처음에 켜
 let CHART;
 function buildChart(){
   if (!ANNUAL || typeof Chart === "undefined") return;
+  const nat = ANNUAL.currency || "KRW";
   const labels = ANNUAL.rows.map(r => r[0]);
   const datasets = ANNUAL.headers.slice(1).map((h,i) => {
     const ci = i + 1, eok = CHART_EOK.has(h), color = CHART_PALETTE[i % CHART_PALETTE.length];
     return {
       label: h,
-      data: ANNUAL.rows.map(r => pnum(r[ci])),
+      data: ANNUAL.rows.map(r => { const v = pnum(r[ci]); return eok ? convVal(v, nat) : v; }),
       type: eok ? "bar" : "line",
       yAxisID: eok ? "y" : "y2",
       borderColor: color, backgroundColor: eok ? color+"cc" : color,
@@ -148,7 +201,7 @@ function buildChart(){
     options: {
       responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
       scales: {
-        y:  { position: "left",  title: { display: true, text: "억원" } },
+        y:  { position: "left",  title: { display: true, text: dispUnit(nat) } },
         y2: { position: "right", title: { display: true, text: "% · 배수" }, grid: { drawOnChartArea: false } },
       },
       plugins: { legend: { position: "bottom" } },
@@ -158,8 +211,9 @@ function buildChart(){
 
 function chartSection(){
   if (!ANNUAL) return "";
+  const u = dispUnit(ANNUAL.currency || "KRW");
   return `<section><h2>연간 추이</h2>`+
-    `<div class="secunit">범례 클릭으로 지표 토글 · 막대=억원(좌축), 선=%·배수(우축)</div>`+
+    `<div class="secunit">범례 클릭으로 지표 토글 · 막대=${u}(좌축), 선=%·배수(우축)</div>`+
     `<div style="position:relative;height:360px"><canvas id="annualChart"></canvas></div></section>`;
 }
 
@@ -169,17 +223,20 @@ function render(){
   buildChart();
 }
 
+const grab = p => fetch(p).then(r=>r.ok?r.json():null).catch(()=>null);
 Promise.all([
-  fetch(`data/${STOCK}.json`).then(r=>r.json()),
-  fetch(`data/${STOCK}_quote.json`).then(r=>r.json()).catch(()=>null),
-  fetch(`data/${STOCK}_annual.json`).then(r=>r.ok?r.json():null).catch(()=>null),
-  fetch(`data/${STOCK}_quarter.json`).then(r=>r.ok?r.json():null).catch(()=>null),
-  fetch(`data/${STOCK}_balance.json`).then(r=>r.ok?r.json():null).catch(()=>null),
+  grab(`data/${STOCK}.json`),
+  grab(`data/${STOCK}_quote.json`),
+  grab(`data/${STOCK}_annual.json`),
+  grab(`data/${STOCK}_quarter.json`),
+  grab(`data/${STOCK}_balance.json`),
 ]).then(([d, q, a, qt, b])=>{
-  DATA = d; PERIODS = d.periods; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b;
-  document.getElementById("title").textContent = `${d.corp_name} (${d.stock_code})`;
+  DATA = d; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b;
+  if (d && d.corp_name) document.getElementById("title").textContent = `${d.corp_name} (${d.stock_code})`;
+  DISPLAY_CCY = nativeCcy();   // 종목 native 통화로 초기화
+  syncCcy();
   render();
-}).catch(e => document.getElementById("title").textContent = "데이터 없음: "+e);
+});
 </script>
 </body>
 </html>

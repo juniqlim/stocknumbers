@@ -65,10 +65,15 @@ fetch("data/companies.json").then(r=>r.json()).then(list=>{
 
 // ── 통화 표시 ────────────────────────────────────────────────
 function nativeCcy(){ return (ANNUAL||QUARTER||BALANCE||{}).currency || "KRW"; }
-function natUnit(nat){ return nat==="USD" ? "십억$" : "억원"; }
+function natValueUnit(){              // 종목 native 금액 단위 (USD는 백만$/십억$ 혼용)
+  const o = ANNUAL||QUARTER||BALANCE||{};
+  return o.value_unit || (o.currency==="USD" ? "십억$" : "억원");
+}
+function natUnit(nat){ return nat==="USD" ? natValueUnit() : "억원"; }
 function dispUnit(nat){               // 현재 표시중인 금액 단위 라벨
   if (DISPLAY_CCY===nat) return natUnit(nat);
-  return DISPLAY_CCY==="USD" ? "백만$" : "조원";
+  if (DISPLAY_CCY==="USD") return "백만$";              // KRW종목 → 달러
+  return natValueUnit()==="백만$" ? "억원" : "조원";    // USD종목 → 원화 (규모 따라)
 }
 const MONEY_DENY = new Set(["PER(연말)","PER"]);   // 숫자지만 금액 아님(배수)
 function moneyCols(obj){
@@ -84,7 +89,10 @@ function moneyCols(obj){
 function convVal(v, nat){             // 숫자값을 표시통화로 환산
   if (v===null || DISPLAY_CCY===nat) return v;
   if (nat==="KRW" && DISPLAY_CCY==="USD") return v*100/FX;   // 억원 → 백만$
-  if (nat==="USD" && DISPLAY_CCY==="KRW") return v*FX/1000;  // 십억$ → 조원
+  if (nat==="USD" && DISPLAY_CCY==="KRW"){                    // $ → 원화 (규모 따라 억/조)
+    return natValueUnit()==="백만$" ? v*FX/100      // 백만$ → 억원
+                                    : v*FX/1000;    // 십억$ → 조원
+  }
   return v;
 }
 function convCell(c, nat){
@@ -97,7 +105,9 @@ function convCell(c, nat){
 function setCcy(v){ DISPLAY_CCY = v; render(); syncCcy(); }
 function syncCcy(){
   const sel = document.getElementById("ccy");
-  sel.innerHTML = `<option value="KRW">원화 ₩</option><option value="USD">달러 $</option>`;
+  if (nativeCcy() !== "USD"){ sel.style.display = "none"; return; }  // 한국 종목은 달러 토글 불필요
+  sel.style.display = "";
+  sel.innerHTML = `<option value="USD">달러 $</option><option value="KRW">원화 ₩</option>`;
   sel.value = DISPLAY_CCY;
 }
 
@@ -156,8 +166,10 @@ function yearTable(obj){
     }).join("");
     return `<tr class="${hl.has(r[0])?'hl':''}"><td>${r[0]}</td>${cells}</tr>`;
   }).join("");
-  const cap = (obj.unit||"") +
-    (DISPLAY_CCY!==nat ? ` · 표시: ${dispUnit(nat)} (환율 ${FX.toLocaleString("ko-KR")}원/$)` : "");
+  let cap = obj.unit || "";
+  if (DISPLAY_CCY!==nat)                                   // 표시통화에 맞춰 캡션 단위 토큰 교체
+    cap = cap.replace(/십억\$\(USD\)|백만\$\(USD\)|억원/, dispUnit(nat))
+           + ` · 환율 ${FX.toLocaleString("ko-KR")}원/$`;
   return `<section><h2>${obj.title || ""}</h2>`+
     `<div class="secunit">${cap}</div>`+
     `<div class="wrap"><table><thead><tr>${head}</tr></thead>`+

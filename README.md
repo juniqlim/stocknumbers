@@ -21,8 +21,9 @@
 | `<code>_annual.json` | 연간 실적 표(큐레이션) | 수기 작성 (아래 스키마) |
 | `<code>_quarter.json` | 분기 실적 표 | 수기 작성 |
 | `<code>_balance.json` | 재무상태표(다년) | 수기 작성 |
+| `<code>_extra.json` | 종목별 추가 year-row 표(선택). 페이지 **말미**에 렌더 | 수기 작성 |
 
-`<code>.json`·`_quote.json`만 있으면 페이지는 뜬다. 나머지 3개는 있으면 해당 섹션이 추가되고, 없으면 자동 생략된다(`index.html`이 404를 null로 처리).
+`<code>.json`·`_quote.json`만 있으면 페이지는 뜬다. 나머지는 있으면 해당 섹션이 추가되고, 없으면 자동 생략된다(`index.html`이 404를 null로 처리). `_extra`는 year-row 공용 스키마를 그대로 쓰는 범용 슬롯으로, 종목 특화 표(예: 005930 우선주 괴리율)를 맨 아래 붙일 때 쓴다.
 
 ## year-row 공용 스키마 (`_annual` / `_quarter` / `_balance`)
 

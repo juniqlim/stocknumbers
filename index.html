@@ -47,7 +47,7 @@
 
 <script>
 const STOCK = new URLSearchParams(location.search).get("code") || "005930";
-let DATA, QUOTE, ANNUAL, QUARTER, BALANCE;
+let DATA, QUOTE, ANNUAL, QUARTER, BALANCE, EXTRA;
 
 const FX = 1380;            // USD/KRW 근사 (2026)
 let DISPLAY_CCY = "KRW";    // 표시 통화 (종목 native로 초기화)
@@ -231,7 +231,7 @@ function chartSection(){
 
 function render(){
   document.getElementById("main").innerHTML =
-    valuationSection() + chartSection() + yearTable(ANNUAL) + yearTable(QUARTER) + yearTable(BALANCE);
+    valuationSection() + chartSection() + yearTable(ANNUAL) + yearTable(QUARTER) + yearTable(BALANCE) + yearTable(EXTRA);
   buildChart();
 }
 
@@ -242,8 +242,9 @@ Promise.all([
   grab(`data/${STOCK}_annual.json`),
   grab(`data/${STOCK}_quarter.json`),
   grab(`data/${STOCK}_balance.json`),
-]).then(([d, q, a, qt, b])=>{
-  DATA = d; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b;
+  grab(`data/${STOCK}_extra.json`),
+]).then(([d, q, a, qt, b, ex])=>{
+  DATA = d; QUOTE = q; ANNUAL = a; QUARTER = qt; BALANCE = b; EXTRA = ex;
   if (d && d.corp_name) document.getElementById("title").textContent = `${d.corp_name} (${d.stock_code})`;
   DISPLAY_CCY = nativeCcy();   // 종목 native 통화로 초기화
   syncCcy();

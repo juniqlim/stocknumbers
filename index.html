@@ -188,6 +188,7 @@ function pnum(s){
 const CHART_PALETTE = ["#2563eb","#dc2626","#16a34a","#d97706","#7c3aed","#0891b2",
   "#db2777","#65a30d","#475569","#ea580c","#0d9488","#9333ea","#e11d48","#4f46e5"];
 const CHART_EOK = new Set(["매출","영업이익","순이익","영업CF","CAPEX","생산능력","FCF"]); // 막대(억원,좌축)
+const CHART_LINE_EOK = new Set(["시총"]); // 선(억원,좌축)
 const CHART_DEFAULT = new Set(["매출","영업이익","OPM"]); // 처음에 켜둘 지표
 
 let CHART;
@@ -196,12 +197,13 @@ function buildChart(){
   const nat = ANNUAL.currency || "KRW";
   const labels = ANNUAL.rows.map(r => r[0]);
   const datasets = ANNUAL.headers.slice(1).map((h,i) => {
-    const ci = i + 1, eok = CHART_EOK.has(h), color = CHART_PALETTE[i % CHART_PALETTE.length];
+    const ci = i + 1, eok = CHART_EOK.has(h), lineEok = CHART_LINE_EOK.has(h);
+    const money = eok || lineEok, color = CHART_PALETTE[i % CHART_PALETTE.length];
     return {
       label: h,
-      data: ANNUAL.rows.map(r => { const v = pnum(r[ci]); return eok ? convVal(v, nat) : v; }),
+      data: ANNUAL.rows.map(r => { const v = pnum(r[ci]); return money ? convVal(v, nat) : v; }),
       type: eok ? "bar" : "line",
-      yAxisID: eok ? "y" : "y2",
+      yAxisID: money ? "y" : "y2",
       borderColor: color, backgroundColor: eok ? color+"cc" : color,
       tension: 0.2, spanGaps: true, borderWidth: eok ? 0 : 2, pointRadius: eok ? 0 : 2.5,
       hidden: !CHART_DEFAULT.has(h),

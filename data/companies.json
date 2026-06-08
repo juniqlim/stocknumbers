@@ -42,5 +42,9 @@
   {
     "code": "TSM",
     "name": "TSMC"
+  },
+  {
+    "code": "GOOGL",
+    "name": "알파벳(구글)"
   }
 ]

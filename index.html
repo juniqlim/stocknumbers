@@ -55,9 +55,14 @@ let DISPLAY_CCY = "KRW";    // 표시 통화 (종목 native로 초기화)
 // 종목 선택 셀렉트박스 (data/companies.json 매니페스트 기반)
 fetch("data/companies.json").then(r=>r.json()).then(list=>{
   const sel = document.getElementById("picker");
-  if (!list.some(c=>c.code===STOCK)) list = [{code:STOCK, name:STOCK}, ...list];
-  sel.innerHTML = list.map(c=>
-    `<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`
+  if (!list.some(c=>c.code===STOCK)) list = [{code:STOCK, name:STOCK, sector:"기타"}, ...list];
+  const bySector = {};                                   // 섹터별 그룹핑
+  list.forEach(c => (bySector[c.sector||"기타"] ||= []).push(c));
+  sel.innerHTML = Object.keys(bySector).sort((a,b)=>a.localeCompare(b,"ko")).map(sec =>
+    `<optgroup label="${sec}">`+
+    bySector[sec].sort((a,b)=>a.name.localeCompare(b.name,"ko")).map(c=>
+      `<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`
+    ).join("")+`</optgroup>`
   ).join("");
   const me = list.find(c=>c.code===STOCK);
   if (me) document.getElementById("title").textContent = `${me.name} (${me.code})`;

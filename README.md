@@ -91,13 +91,22 @@ DART가 없는 미국주식은 SEC EDGAR `companyconcept` API(`data.sec.gov/api/
 ### 홍콩주식 (HKEX)
 DART·EDGAR가 없으면 HKEX 연차/반기 보고서 PDF를 받아 파싱(회사 IR 사이트 `e_<code>_annualreport<YYYY>.pdf` 또는 hkexnews.hk, `pdftotext -layout`). 반기 공시(분기 없음)라 `_quarter`는 반기표로 작성(첫 열 `1H2024`…, `2H=연간−1H`). 표시통화가 USD인 경우가 많음(예: YesAsia는 기능·표시통화가 US$, 주식·배당은 HKD). `value_unit:"백만$"` 권장.
 
+### 대만주식 (SEC 20-F, IFRS)
+TSMC 등 대만 ADR은 SEC에 **20-F(연간)를 IFRS 택소노미로** 제출 → `companyconcept` API의 `ifrs-full` 네임스페이스 사용(`.../CIK{10자리}/ifrs-full/{태그}.json`).
+- **분기 없음**: 20-F는 연간만, 6-K 중간보고는 비구조화(분기 fact 0개) → `_quarter` 생략.
+- 통화: 보고통화는 TWD지만 20-F가 **USD 환산치(감사)**를 2017~ 제공 → USD 그대로 사용(별도 환율 변환 불필요). `currency:"USD"`, `value_unit:"십억$"`. (2015~2016은 USD 미제공 → 2017부터.)
+- 연도 매칭: `frame`이 비는 경우가 많아 **기간 종료일**로 연도 판별(flow는 ~365일, instant는 연말).
+- 태그(ifrs-full): `Revenue`, `GrossProfit`, `ProfitLossFromOperatingActivities`, `ProfitLossAttributableToOwnersOfParent`, `Assets`, `Liabilities`, `Equity`, `CashFlowsFromUsedInOperatingActivities`, `PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities`, EPS `BasicEarningsLossPerShare`.
+- PER(연말)·배당률: 본주(TWSE `2330.TW`) 연말종가·EPS(TWD)로 계산(배수·비율은 통화무관). 주당배당은 총배당(`DividendsPaidClassifiedAsFinancingActivities`)÷발행주식(2019년 분기배당 전환 후 per-share 태그가 끊겨 총액 기준으로 산출).
+
 ## 레퍼런스 예시
 - **003350 (한국화장품제조)** — 한국주식(KRW) 표준 예시. 5개 파일 전부 + 사업보고서 XML 파싱.
 - **003230 (삼양식품) / 214450 (파마리서치)** — KRW, DART API(`fnlttSinglAcntAll`, CIS)로 연간 2017~ 직접 수집. 분기는 누적 차분.
 - **NFLX (넷플릭스)** — 미국주식(USD, `십억$`). EDGAR API 기반, `_quote`/DART `<code>.json` 없이 동작.
 - **2209 (예스아시아홀딩스)** — 홍콩주식(USD, `백만$`, 반기 공시). HKEX PDF 파싱.
+- **TSM (TSMC)** — 대만 ADR(USD, `십억$`). SEC 20-F(IFRS) API 기반, 연간·재무상태표만(분기 XBRL 없음). PER(연말)·배당률은 본주 2330 기준.
 
-새 회사 추가 시 같은 구조를 복제하고 `data/companies.json`에 등록한다.
+새 회사 추가 시: ① `_annual`/`_balance`(+가능하면 `_quarter`) 작성 → ② `data/companies.json`에 등록 → ③ 새 데이터 소스/통화 유형이면 위 방법론·예시에 한 줄 추가 → ④ 다운로드한 원본 문서가 있으면 note 저장소에 보관(아래).
 
 ## 원자료 보관 (note 저장소)
 보고서 원본(DART XML, HKEX/EDGAR PDF 등)은 **stocknumbers와 별개인 `note` git 저장소**(`/Users/juniq/develop/code/juniqlim/note`, 브랜치 `master`)에 보관하고 따로 커밋·푸시한다. 경로 관례: `investment/<카테고리>/<회사>/reports/<period>/` (예: `investment/KBeautyDistribution/silicon2/reports/annual_2025/`). period 슬러그: `annual_YYYY` / `half_YYYY` / `q1_YYYY` / `q3_YYYY`. 정정본이 있으면 정정본 우선. stocknumbers repo엔 원자료를 넣지 않는다.

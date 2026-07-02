@@ -20,6 +20,11 @@
     "sector": "반도체"
   },
   {
+    "code": "SNDK",
+    "name": "샌디스크",
+    "sector": "반도체"
+  },
+  {
     "code": "AAPL",
     "name": "애플",
     "sector": "빅테크/플랫폼"

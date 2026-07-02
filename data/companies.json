@@ -15,6 +15,11 @@
     "sector": "반도체"
   },
   {
+    "code": "NVDA",
+    "name": "엔비디아",
+    "sector": "반도체"
+  },
+  {
     "code": "AAPL",
     "name": "애플",
     "sector": "빅테크/플랫폼"

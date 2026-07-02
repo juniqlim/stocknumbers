@@ -35,6 +35,12 @@
   #picker, #ccy { margin-top:10px; font-size:14px; padding:6px 10px; border:1px solid var(--line);
             border-radius:8px; background:#fff; color:#111; max-width:100%; }
   #ccy { margin-left:6px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; }
+  a.card { display:flex; justify-content:space-between; align-items:center; padding:12px 14px;
+           border:1px solid #ddd; border-radius:8px; background:#fff; color:#111;
+           text-decoration:none; font-weight:600; }
+  a.card:hover { border-color:#2563eb; background:#f5f8ff; }
+  a.card .code { color:#888; font-weight:400; font-size:.85em; }
 </style>
 </head>
 <body>
@@ -46,7 +52,7 @@
 <main id="main"></main>
 
 <script>
-const STOCK = new URLSearchParams(location.search).get("code") || "005930";
+const STOCK = new URLSearchParams(location.search).get("code");   // 없으면 종목 목록(랜딩)
 let DATA, QUOTE, ANNUAL, QUARTER, BALANCE, EXTRA;
 
 const FX = 1380;            // USD/KRW 근사 (2026)
@@ -55,18 +61,28 @@ let DISPLAY_CCY = "KRW";    // 표시 통화 (종목 native로 초기화)
 // 종목 선택 셀렉트박스 (data/companies.json 매니페스트 기반)
 fetch("data/companies.json").then(r=>r.json()).then(list=>{
   const sel = document.getElementById("picker");
-  if (!list.some(c=>c.code===STOCK)) list = [{code:STOCK, name:STOCK, sector:"기타"}, ...list];
+  if (STOCK && !list.some(c=>c.code===STOCK)) list = [{code:STOCK, name:STOCK, sector:"기타"}, ...list];
   const bySector = {};                                   // 섹터별 그룹핑
   list.forEach(c => (bySector[c.sector||"기타"] ||= []).push(c));
-  sel.innerHTML = Object.keys(bySector).sort((a,b)=>a.localeCompare(b,"ko")).map(sec =>
-    `<optgroup label="${sec}">`+
-    bySector[sec].sort((a,b)=>a.name.localeCompare(b.name,"ko")).map(c=>
-      `<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`
-    ).join("")+`</optgroup>`
-  ).join("");
+  const sectors = Object.keys(bySector).sort((a,b)=>a.localeCompare(b,"ko"));
+  const grp = sec => bySector[sec].sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  sel.innerHTML = (STOCK?"":`<option value="" disabled selected>종목 선택…</option>`)+
+    sectors.map(sec => `<optgroup label="${sec}">`+
+      grp(sec).map(c=>`<option value="${c.code}"${c.code===STOCK?" selected":""}>${c.name} (${c.code})</option>`).join("")+
+    `</optgroup>`).join("");
+  if (!STOCK){ renderLanding(sectors, grp); return; }     // 랜딩: 종목 목록
   const me = list.find(c=>c.code===STOCK);
   if (me) document.getElementById("title").textContent = `${me.name} (${me.code})`;
 }).catch(()=>{ document.getElementById("picker").style.display = "none"; });
+
+function renderLanding(sectors, grp){
+  document.getElementById("title").textContent = "종목 목록";
+  document.getElementById("ccy").style.display = "none";
+  document.getElementById("main").innerHTML = sectors.map(sec =>
+    `<section><h2>${sec}</h2><div class="grid">`+
+    grp(sec).map(c=>`<a class="card" href="?code=${c.code}">${c.name} <span class="code">${c.code}</span></a>`).join("")+
+    `</div></section>`).join("");
+}
 
 // ── 통화 표시 ────────────────────────────────────────────────
 function nativeCcy(){ return (ANNUAL||QUARTER||BALANCE||{}).currency || "KRW"; }
@@ -243,7 +259,7 @@ function render(){
 }
 
 const grab = p => fetch(p).then(r=>r.ok?r.json():null).catch(()=>null);
-Promise.all([
+if (STOCK) Promise.all([
   grab(`data/${STOCK}.json`),
   grab(`data/${STOCK}_quote.json`),
   grab(`data/${STOCK}_annual.json`),

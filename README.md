@@ -1,4 +1,6 @@
-# stocknumbers — 한국주식 펀더멘털
+# stocknumbers — 관심 기업의 숫자
+
+다모다란(Aswath Damodaran)의 *Narrative and Numbers*에서 이름을 얻었다. 관심 기업의 숫자를 잘 들여다보기 위한 사이트.
 
 종목별 정적 JSON을 브라우저(`index.html`)가 직접 fetch해 표·차트로 보여주는 정적 사이트. 백엔드 없음.
 

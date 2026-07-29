@@ -54,16 +54,18 @@
 - **분기표(`_quarter`) 표준 컬럼**: `분기·매출·매출YoY·매출QoQ·매출총이익·GPM·영업이익·영익YoY·영익QoQ·OPM·순이익·영업CF·FCF·CAPEX`. QoQ=직전 분기(반기표는 직전 반기) 대비. CAPEX는 **양수**(abs), `FCF=영업CF−CAPEX`. 부호·적자전환은 `흑전`/`적자` 마커.
 
 선택 필드(통화):
-- `currency`: `"KRW"`(기본, 생략 가능) 또는 `"USD"`. 외국주식(미국·홍콩 등)은 `"USD"`.
-- `value_unit`: 표 캡션·차트축에 쓰는 native 단위 라벨 — `"억원"`(KRW) / `"십억$"`(대형 미국주식) / `"백만$"`(~$10억 미만 외국주식). 통화 전환 환산은 이 라벨로 native 스케일을 판별하므로 정확히 적는다.
-- `money_cols`: 금액 컬럼(헤더명 배열). 통화 전환 대상. 생략 시 `index.html`이 추론(순수 숫자 컬럼, `PER` 류 배수는 제외) — 한국주식은 추론으로 충분, 달러주식은 명시 권장.
+- `currency`: `"KRW"`(기본, 생략 가능) / `"USD"`(미국·홍콩·대만 등) / `"CNY"`(중국 본토).
+- `value_unit`: 표 캡션·차트축에 쓰는 native 단위 라벨 — `"억원"`(KRW) / `"십억$"`(대형 미국주식) / `"백만$"`(~$10억 미만 외국주식) / `"억위안"`(CNY). 통화 전환 환산은 이 라벨로 native 스케일을 판별하므로 정확히 적는다.
+- `money_cols`: 금액 컬럼(헤더명 배열). 통화 전환 대상. 생략 시 `index.html`이 추론(순수 숫자 컬럼, `PER` 류 배수는 제외) — 한국주식은 추론으로 충분, 외화주식은 명시 권장.
 
-### 통화 전환 ($/₩)
+### 통화 전환 (¥/$/₩)
 헤더의 통화 셀렉트박스로 표·차트 금액을 환산. 종목 native 통화로 시작.
-- **한국주식(KRW): 토글 셀렉터 자체를 숨긴다**(달러 표시 불필요). 항상 ₩(억원).
-- **외국주식(USD)만 ₩/$ 토글 노출**. ₩ 표시 단위는 native 스케일 따라감: `십억$`→**조원**, `백만$`→**억원**.
-- 표 위 캡션의 `단위: …` 토큰도 표시통화에 맞춰 동적 교체(`백만$(USD)`↔`억원`). "반기 기준" 등 단서는 보존.
-- %·YoY·QoQ·PER 등 비금액 열은 그대로. 환율은 `index.html`의 `FX`(현재 1,380원/$ 고정).
+- **한국주식(KRW): 토글 셀렉터 자체를 숨긴다**(외화 표시 불필요). 항상 ₩(억원).
+- **외화주식만 토글 노출**. 옵션은 `[native, ₩, (native≠USD면 $)]` — USD종목은 `$/₩`, CNY종목은 `¥/₩/$`.
+- ₩ 표시 단위는 native 스케일 따라감: `십억$`→**조원**, `백만$`·`억위안`→**억원**.
+- 표 위 캡션의 `단위: …` 토큰도 표시통화에 맞춰 동적 교체(`백만$(USD)`·`억위안(CNY)`↔`억원`). "반기 기준" 등 단서는 보존.
+- %·YoY·QoQ·PER 등 비금액 열은 그대로.
+- **환산 구조**: `index.html`의 `FX`(`{USD:1380, CNY:193}` 원/단위)와 `UNIT_EOK`(금액단위 1 = 몇 억원)로 **억원을 기준축 삼아 2단계 환산**한다. 통화쌍별 분기가 아니라 단위 계수 테이블이므로, 새 통화는 `FX`·`DEFAULT_UNIT`·`UNIT_EOK`·`CCY_LABEL`에 한 줄씩 추가하면 된다.
 
 ### 추이 차트
 `_annual.json`이 있으면 막대(금액, 좌축)+선(%·배수, 우축) 혼합 차트가 자동 생성된다(Chart.js, 범례 클릭 토글). 좌축 단위는 표시 통화 따라감. 막대로 그릴 금액 계열은 `index.html`의 `CHART_EOK`, 처음 켜둘 지표는 `CHART_DEFAULT`로 조정. **좌축 금액인데 선으로 그릴 계열은 `CHART_LINE_EOK`**(예: `시총` — 막대들과 같은 좌축이지만 추이를 선으로). 시총 컬럼이 있는 종목에서만 자동 표시되고, 없는 종목엔 무영향.
@@ -98,6 +100,17 @@ DART가 없는 미국주식은 SEC EDGAR `companyconcept` API(`data.sec.gov/api/
 ### 홍콩주식 (HKEX)
 DART·EDGAR가 없으면 HKEX 연차/반기 보고서 PDF를 받아 파싱(회사 IR 사이트 `e_<code>_annualreport<YYYY>.pdf` 또는 hkexnews.hk, `pdftotext -layout`). 반기 공시(분기 없음)라 `_quarter`는 반기표로 작성(첫 열 `1H2024`…, `2H=연간−1H`). 표시통화가 USD인 경우가 많음(예: YesAsia는 기능·표시통화가 US$, 주식·배당은 HKD). `value_unit:"백만$"` 권장. 시총·PER·배당은 야후(`<code>.HK`) 연말종가(HKD)와 보고서값(EPS·발행주식수·주당배당)으로 산출: PER=종가÷EPS, 시총=종가×주식수÷7.8(HKD→USD 페그), 배당률=주당배당(HKcents)÷종가. (`pdftotext`가 표를 깨면 본문 서술·현금흐름표 라인에서 값 회수.)
 
+### 중국 본토주식 (STAR마켓/A주, eastmoney)
+중국 A주는 eastmoney의 무인증 데이터센터 API로 정기보고서 집계치를 받는다(`User-Agent`·`Referer: https://data.eastmoney.com/` 헤더 권장).
+- 엔드포인트: `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName={표}&columns=ALL&filter=(SECURITY_CODE%3D%22688825%22)`. F10 계열은 host `datacenter`, 필터 `(SECUCODE%3D%22688825.SH%22)`.
+- 표: 업적요약 `RPT_LICO_FN_CPD`(매출·지배순이익·EPS·ROE·GPM), 손익 `RPT_F10_FINANCE_GINCOME`(매출원가·영업이익), 재무상태 `RPT_DMSK_FN_BALANCE`, 현금흐름 `RPT_F10_FINANCE_GCASHFLOW`(`NETCASH_OPERATE`, CAPEX=`CONSTRUCT_LONG_ASSET`).
+- **날짜 컬럼이 표마다 다름**: 대부분 `REPORT_DATE`, `RPT_LICO_FN_CPD`만 `REPORTDATE`. 잘못된 `sortColumns`를 주면 `result:null`로 온다.
+- **누적공시**: 한국과 같이 분기값 = 당기누적 − 직전분기누적, Q4 = 연간 − 3Q누적.
+- **3분기보고서는 간이공시**: 매출원가·현금흐름 세부가 없다(영업이익·누적매출은 있음) → **Q3·Q4의 매출총이익·GPM·CAPEX는 분리 불가**. 합산값만 캡션에 적고 셀은 `-`.
+- **영업이익(营业利润)은 정의가 다름**: 투자손익·공정가치변동·자산손상이 포함된 포괄적 개념이라 한국·미국 영업이익보다 넓다. OPM 비교 시 캡션에 명시.
+- `currency:"CNY"`, `value_unit:"억위안"`, `money_cols` 명시. 시세는 야후 `{code}.SS`(상하이)/`.SZ`(선전)로 받는다.
+- 신규 상장사는 과거 연도별 시총·PER·배당을 산출할 수 없으므로 해당 컬럼을 아예 빼는 편이 낫다.
+
 ### 대만주식 (SEC 20-F, IFRS)
 TSMC 등 대만 ADR은 SEC에 **20-F(연간)를 IFRS 택소노미로** 제출 → `companyconcept` API의 `ifrs-full` 네임스페이스 사용(`.../CIK{10자리}/ifrs-full/{태그}.json`).
 - **분기 없음**: 20-F는 연간만, 6-K 중간보고는 비구조화(분기 fact 0개) → `_quarter` 생략.
@@ -115,6 +128,7 @@ TSMC 등 대만 ADR은 SEC에 **20-F(연간)를 IFRS 택소노미로** 제출 �
 - **SNDK (샌디스크)** — 미국주식(USD, `십억$`). EDGAR API 기반, 연간(FY2023~2025)·분기(FY25Q1~FY26Q3)·재무상태표(FY2024~2025). 2025-02 웨스턴디지털에서 NAND 사업 분사 상장 → **FY2023~2024는 분사 전 carve-out 재무**(자산총계는 FY2023 미제공). **회계연도 6월 말 종료**(em∈{6,7}로 FY 판별, FY26Q3=2026-04-03). 매출 `RevenueFromContract...`, CAPEX `PaymentsToAcquirePropertyPlantAndEquipment`. 3개년 순손실→PER '적자', 무배당. 시총은 상장 후 FY2025말만(2025-06-27 종가×146M주), FY23·24는 '-'. NAND 사이클 종목: FY23~24 GPM 급락·영업적자, **FY25Q3 영업권 손상 약 18억$**, **FY26 AI 메모리 슈퍼사이클로 매출·GPM 급등**(FY26Q3 매출 +251%·GPM 78%, 주가 $47→$600+).
 - **NVDA (엔비디아)** — 미국주식(USD, `십억$`). EDGAR API 기반, 연간·분기·재무상태표 전부 + 시총. 매출 `Revenues`(FY2019만 `RevenueFromContract...`), CAPEX `PaymentsToAcquireProductiveAssets`(FY2022~; FY2019~2021은 옛 태그가 companyfacts에서 잘려 10-K 현금흐름표 직접 파싱). **함정 ①회계연도 1월 말 종료**: 연/분기 모두 종료일 월(em∈{1,2})로 FY 판별, FY2026=2026-01-25 종료. **②분할 2회**(2021-07 4:1, 2024-06 10:1): 발행주식수를 크기로 감지해 post-10:1로 통일(0.6B→×40, 2.5B→×10), 종가는 야후 `close`(분할반영). 시총·PER은 회계연도말 종가 기준. 배당은 토큰수준이라 배당률=총배당(`PaymentsOfDividends`)÷시총. FY2023 재고조정 후 FY2024~ AI가속기 폭증(매출 27→216십억$).
 - **MU (마이크론)** — 미국주식(USD, `십억$`). EDGAR API 기반, 연간(FY2017~2025)·분기(FY23Q2~FY26Q3)·재무상태표 전부 + 시총. **000660(SK하이닉스)의 미국판** — 같은 DRAM·NAND 메모리 사이클을 회계연도 기준으로 본다. **회계연도 8월 말~9월 초 종료**(FY2025=2025-08-28), 분기 종료일이 매년 달라 소속 FY는 "종료일 ≤ 해당 FY 종료일"인 첫 FY로 판정. 매출 `RevenueFromContractWithCustomerExcludingAssessedTax`(FY2017~; FY2016 이전은 `Revenues`), 분기 손익은 3개월 fact 직접(Q4=연간−3Q), 현금흐름은 YTD 차분. **분할 없음**이라 종가·주식수 정합(`시총÷순이익 ≈ PER(연말)`로 검증 완료). FY2022 배당 개시(그 전 무배당) → 배당률=총배당÷시총. 사이클: FY2018 고점 → FY2019~2020 다운턴 → FY2023 사상 최악(매출 -49.5%, OPM -37.0%) → FY2024 HBM 회복 → FY2026 AI 메모리 슈퍼사이클(FY26Q3 매출 +345.7%, GPM 84.6%).
+- **688825 (창신메모리/CXMT, 长鑫科技)** — **중국 본토주식(CNY, `억위안`) 유일 예시**. eastmoney API 기반, 연간(2022~2025)·분기(Q1'25~Q1'26)·재무상태표. 중국 최대 DRAM 업체로 2026-07-27 STAR마켓 상장(공모 579억위안, 과거 시총·PER 산출 불가라 해당 컬럼 없음). 국산화 램프업 곡선: 2022~2024 대규모 적자(2023 영업손실 -193.4억위안)에 CAPEX가 매출의 2~5배 → 2025 흑자전환(GPM 41.0%) → 2026Q1 단일 분기 매출이 2025 연간의 82%(GPM 79.2%). 함정: ①3분기보고서 간이공시로 Q3·Q4 매출총이익·CAPEX 분리 불가 ②2024년 1·2분기 보고서가 없어 2025 분기 YoY 산출 불가 ③영업이익이 中 회계기준(营业利润)이라 정의가 더 넓음.
 - **RDDT (레딧)** — 미국주식이나 규모가 작아 `백만$` 사용(대형 미국주식 중 유일). EDGAR API 기반, 연간·분기·재무상태표 전부 + 시총. 매출 태그는 `RevenueFromContractWithCustomerExcludingAssessedTax`, 원가 `CostOfGoodsAndServicesSold`(GP=매출−원가). 2024-03 IPO라 시총·PER은 2024~, 분기는 3개월 fact 직접 제공(Q4=연간−3Q). 함정: ①발행주식수가 Class A/B 커스텀 태그라 companyfacts에 없음 → 10-K 대차대조표 "X and Y shares issued and outstanding" 파싱해 A+B 합산. ②2022·2023 자본총계 음수(전환우선주=임시자본/메자닌)라 ROE·부채비율 '-'; IPO 시 우선주가 보통주로 전환되며 정상화. ③2024 순손실·Q1'24은 IPO 관련 주식보상 대량 인식분($약 595M) 포함. ④흑자전환 초기라 영익 YoY/QoQ %가 저기저효과로 크게 튐.
 - **2209 (예스아시아홀딩스)** — 홍콩주식(USD, `백만$`, 반기 공시). HKEX PDF 파싱.
 - **TSM (TSMC)** — 대만 ADR(USD, `십억$`). SEC 20-F(IFRS) API 기반, 연간·재무상태표만(분기 XBRL 없음). PER(연말)·배당률은 본주 2330 기준.

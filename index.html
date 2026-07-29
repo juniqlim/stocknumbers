@@ -55,7 +55,7 @@
 const STOCK = new URLSearchParams(location.search).get("code");   // 없으면 종목 목록(랜딩)
 let DATA, QUOTE, ANNUAL, QUARTER, BALANCE, EXTRA;
 
-const FX = 1380;            // USD/KRW 근사 (2026)
+const FX = { USD: 1380, CNY: 193 };   // 1통화단위당 원화 근사 (2026)
 let DISPLAY_CCY = "KRW";    // 표시 통화 (종목 native로 초기화)
 
 // 종목 선택 셀렉트박스 (data/companies.json 매니페스트 기반)
@@ -85,16 +85,23 @@ function renderLanding(sectors, grp){
 }
 
 // ── 통화 표시 ────────────────────────────────────────────────
+const DEFAULT_UNIT = { USD:"십억$", CNY:"억위안", KRW:"억원" };
+const UNIT_EOK = {                    // 금액단위 1 = 몇 억원 (환산 기준축)
+  "억원": 1, "조원": 10000,
+  "십억$": FX.USD*10, "백만$": FX.USD/100,
+  "억위안": FX.CNY,
+};
 function nativeCcy(){ return (ANNUAL||QUARTER||BALANCE||{}).currency || "KRW"; }
 function natValueUnit(){              // 종목 native 금액 단위 (USD는 백만$/십억$ 혼용)
   const o = ANNUAL||QUARTER||BALANCE||{};
-  return o.value_unit || (o.currency==="USD" ? "십억$" : "억원");
+  return o.value_unit || DEFAULT_UNIT[o.currency] || "억원";
 }
-function natUnit(nat){ return nat==="USD" ? natValueUnit() : "억원"; }
+function natUnit(nat){ return nat==="KRW" ? "억원" : natValueUnit(); }
 function dispUnit(nat){               // 현재 표시중인 금액 단위 라벨
   if (DISPLAY_CCY===nat) return natUnit(nat);
-  if (DISPLAY_CCY==="USD") return "백만$";              // KRW종목 → 달러
-  return natValueUnit()==="백만$" ? "억원" : "조원";    // USD종목 → 원화 (규모 따라)
+  if (DISPLAY_CCY==="CNY") return "억위안";
+  if (DISPLAY_CCY==="USD") return natValueUnit()==="십억$" ? "십억$" : "백만$";
+  return natValueUnit()==="십억$" ? "조원" : "억원";    // → 원화 (규모 따라)
 }
 const MONEY_DENY = new Set(["PER(연말)","PER"]);   // 숫자지만 금액 아님(배수)
 function moneyCols(obj){
@@ -107,14 +114,10 @@ function moneyCols(obj){
   });
   return set;
 }
-function convVal(v, nat){             // 숫자값을 표시통화로 환산
+function convVal(v, nat){             // 숫자값을 표시통화로 환산 (억원 기준축 경유)
   if (v===null || DISPLAY_CCY===nat) return v;
-  if (nat==="KRW" && DISPLAY_CCY==="USD") return v*100/FX;   // 억원 → 백만$
-  if (nat==="USD" && DISPLAY_CCY==="KRW"){                    // $ → 원화 (규모 따라 억/조)
-    return natValueUnit()==="백만$" ? v*FX/100      // 백만$ → 억원
-                                    : v*FX/1000;    // 십억$ → 조원
-  }
-  return v;
+  const from = UNIT_EOK[natValueUnit()], to = UNIT_EOK[dispUnit(nat)];
+  return (from && to) ? v*from/to : v;
 }
 function convCell(c, nat){
   if (DISPLAY_CCY===nat) return c;
@@ -124,11 +127,13 @@ function convCell(c, nat){
   return a<100 ? o.toFixed(1) : Math.round(o).toLocaleString("en-US");
 }
 function setCcy(v){ DISPLAY_CCY = v; render(); syncCcy(); }
+const CCY_LABEL = { USD:"달러 $", KRW:"원화 ₩", CNY:"위안 ¥" };
 function syncCcy(){
-  const sel = document.getElementById("ccy");
-  if (nativeCcy() !== "USD"){ sel.style.display = "none"; return; }  // 한국 종목은 달러 토글 불필요
+  const sel = document.getElementById("ccy"), nat = nativeCcy();
+  if (nat === "KRW"){ sel.style.display = "none"; return; }  // 한국 종목은 통화 토글 불필요
   sel.style.display = "";
-  sel.innerHTML = `<option value="USD">달러 $</option><option value="KRW">원화 ₩</option>`;
+  const order = [nat, "KRW", ...(nat==="USD" ? [] : ["USD"])];   // native → 원화 → (달러)
+  sel.innerHTML = order.map(c=>`<option value="${c}">${CCY_LABEL[c]}</option>`).join("");
   sel.value = DISPLAY_CCY;
 }
 
@@ -188,9 +193,11 @@ function yearTable(obj){
     return `<tr class="${hl.has(r[0])?'hl':''}"><td>${r[0]}</td>${cells}</tr>`;
   }).join("");
   let cap = obj.unit || "";
-  if (DISPLAY_CCY!==nat)                                   // 표시통화에 맞춰 캡션 단위 토큰 교체
-    cap = cap.replace(/십억\$\(USD\)|백만\$\(USD\)|억원/, dispUnit(nat))
-           + ` · 환율 ${FX.toLocaleString("ko-KR")}원/$`;
+  if (DISPLAY_CCY!==nat){                                  // 표시통화에 맞춰 캡션 단위 토큰 교체
+    const q = nat==="KRW" ? "USD" : nat;                   // 환율 기준통화
+    cap = cap.replace(/십억\$\(USD\)|백만\$\(USD\)|억위안\(CNY\)|억원/, dispUnit(nat))
+           + ` · 환율 ${FX[q].toLocaleString("ko-KR")}원/${q==="CNY"?"¥":"$"}`;
+  }
   return `<section><h2>${obj.title || ""}</h2>`+
     `<div class="secunit">${cap}</div>`+
     `<div class="wrap"><table><thead><tr>${head}</tr></thead>`+

@@ -30,6 +30,11 @@
     "sector": "반도체"
   },
   {
+    "code": "688825",
+    "name": "창신메모리(CXMT)",
+    "sector": "반도체"
+  },
+  {
     "code": "AAPL",
     "name": "애플",
     "sector": "빅테크/플랫폼"

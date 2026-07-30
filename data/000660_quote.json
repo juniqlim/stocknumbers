@@ -1,15 +1,15 @@
 {
   "stock_code": "000660",
   "stock_name": "SK하이닉스",
-  "price": 1550000.0,
-  "market_value": 1085511700000000,
-  "per": 14.35,
+  "price": 1401000.0,
+  "market_value": 1035838200000000,
+  "per": 13.7,
   "eps": 103521.0,
-  "pbr": 6.41,
+  "pbr": 6.11,
   "bps": 231952.0,
-  "dividend_yield": 0.2,
+  "dividend_yield": 0.21,
   "dividend": 3000.0,
   "high_52w": 3002000.0,
   "low_52w": 244000.0,
-  "bizdate": "20260728"
+  "bizdate": "20260729"
 }

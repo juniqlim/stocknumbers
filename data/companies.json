@@ -105,6 +105,11 @@
     "sector": "IT서비스"
   },
   {
+    "code": "NOW",
+    "name": "서비스나우",
+    "sector": "소프트웨어/SaaS"
+  },
+  {
     "code": "TSLA",
     "name": "테슬라",
     "sector": "자동차"

@@ -1,15 +1,15 @@
 {
   "stock_code": "260970",
   "stock_name": "에스앤디",
-  "price": 48700.0,
-  "market_value": 136800000000,
-  "per": 6.06,
+  "price": 56500.0,
+  "market_value": 151600000000,
+  "per": 6.71,
   "eps": 7810.0,
-  "pbr": 1.56,
+  "pbr": 1.73,
   "bps": 30226.0,
-  "dividend_yield": 3.78,
+  "dividend_yield": 3.42,
   "dividend": 1790.0,
-  "high_52w": 143000.0,
+  "high_52w": 135900.0,
   "low_52w": 42100.0,
-  "bizdate": "20260629"
+  "bizdate": "20260814"
 }

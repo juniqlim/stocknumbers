@@ -1,0 +1,509 @@
+{
+  "fs_div": "OFS",
+  "periods": {
+    "thstrm": "2025",
+    "frmtrm": "2024",
+    "bfefrmtrm": "2023"
+  },
+  "statements": {
+    "BS": [
+      {
+        "account_id": "ifrs-full_Assets",
+        "account_nm": "자산총계",
+        "thstrm": 71199675343,
+        "frmtrm": 64575954728,
+        "bfefrmtrm": 61890830772
+      },
+      {
+        "account_id": "ifrs-full_CurrentAssets",
+        "account_nm": "유동자산",
+        "thstrm": 33338899368,
+        "frmtrm": 24138260589,
+        "bfefrmtrm": 22441977125
+      },
+      {
+        "account_id": "ifrs-full_CashAndCashEquivalents",
+        "account_nm": "현금및현금성자산",
+        "thstrm": 3855755735,
+        "frmtrm": 1194559669,
+        "bfefrmtrm": 1138882020
+      },
+      {
+        "account_id": "ifrs-full_Inventories",
+        "account_nm": "유동재고자산",
+        "thstrm": 18326358520,
+        "frmtrm": 15024475378,
+        "bfefrmtrm": 12694191327
+      },
+      {
+        "account_id": "ifrs-full_OtherCurrentAssets",
+        "account_nm": "기타유동자산",
+        "thstrm": 617286461,
+        "frmtrm": 461847479,
+        "bfefrmtrm": 465160657
+      },
+      {
+        "account_id": "ifrs-full_OtherCurrentFinancialAssets",
+        "account_nm": "기타유동금융자산",
+        "thstrm": 405690209,
+        "frmtrm": 2006106290,
+        "bfefrmtrm": 33589360
+      },
+      {
+        "account_id": "ifrs-full_TradeAndOtherCurrentReceivables",
+        "account_nm": "매출채권 및 기타유동채권",
+        "thstrm": 10133808443,
+        "frmtrm": 5451271773,
+        "bfefrmtrm": 8110153761
+      },
+      {
+        "account_id": "ifrs-full_NoncurrentAssets",
+        "account_nm": "비유동자산",
+        "thstrm": 37860775975,
+        "frmtrm": 40437694139,
+        "bfefrmtrm": 39448853647
+      },
+      {
+        "account_id": "dart_GoodwillGross",
+        "account_nm": "사용권 자산",
+        "thstrm": 196902743,
+        "frmtrm": 326142919,
+        "bfefrmtrm": 591433362
+      },
+      {
+        "account_id": "dart_NonCurrentFairValueFinancialAsset",
+        "account_nm": "비유동당기손익인식금융자산",
+        "thstrm": 251000000,
+        "frmtrm": 1000000,
+        "bfefrmtrm": 1000000
+      },
+      {
+        "account_id": "ifrs-full_DeferredTaxAssets",
+        "account_nm": "이연법인세자산",
+        "thstrm": 136001955,
+        "frmtrm": 360981643,
+        "bfefrmtrm": 820460323
+      },
+      {
+        "account_id": "ifrs-full_IntangibleAssetsOtherThanGoodwill",
+        "account_nm": "무형자산",
+        "thstrm": 61454637,
+        "frmtrm": 60127858,
+        "bfefrmtrm": 81529936
+      },
+      {
+        "account_id": "ifrs-full_OtherNoncurrentFinancialAssets",
+        "account_nm": "기타비유동금융자산",
+        "thstrm": 721702597,
+        "frmtrm": 650498626,
+        "bfefrmtrm": 525911411
+      },
+      {
+        "account_id": "ifrs-full_PropertyPlantAndEquipment",
+        "account_nm": "유형자산",
+        "thstrm": 36493714043,
+        "frmtrm": 39038943093,
+        "bfefrmtrm": 37428518615
+      },
+      {
+        "account_id": "dart_CapitalSurplus",
+        "account_nm": "자본잉여금",
+        "thstrm": 31777080753,
+        "frmtrm": 19748957011,
+        "bfefrmtrm": 556207760
+      },
+      {
+        "account_id": "dart_ElementsOfOtherStockholdersEquity",
+        "account_nm": "기타자본구성요소",
+        "thstrm": 404850028,
+        "frmtrm": 394471287,
+        "bfefrmtrm": 63229852
+      },
+      {
+        "account_id": "dart_OtherComprehensiveIncomeLossAccumulatedAmount",
+        "account_nm": "기타포괄손익누계액",
+        "thstrm": 2583616150,
+        "frmtrm": 2655097464,
+        "bfefrmtrm": 89809212
+      },
+      {
+        "account_id": "ifrs-full_Equity",
+        "account_nm": "자본총계",
+        "thstrm": 41673728786,
+        "frmtrm": 27954695259,
+        "bfefrmtrm": 7339525749
+      },
+      {
+        "account_id": "ifrs-full_IssuedCapital",
+        "account_nm": "자본금",
+        "thstrm": 1994830400,
+        "frmtrm": 1575491800,
+        "bfefrmtrm": 990000000
+      },
+      {
+        "account_id": "ifrs-full_RetainedEarnings",
+        "account_nm": "이익잉여금(결손금)",
+        "thstrm": 4913351455,
+        "frmtrm": 3580677697,
+        "bfefrmtrm": 5640278925
+      },
+      {
+        "account_id": "ifrs-full_EquityAndLiabilities",
+        "account_nm": "자본과부채총계",
+        "thstrm": 71199675343,
+        "frmtrm": 64575954728,
+        "bfefrmtrm": 61890830772
+      },
+      {
+        "account_id": "ifrs-full_CurrentLiabilities",
+        "account_nm": "유동부채",
+        "thstrm": 21905523342,
+        "frmtrm": 27949546236,
+        "bfefrmtrm": 35168757266
+      },
+      {
+        "account_id": "dart_CurrentDerivativeLiabilities",
+        "account_nm": "유동파생상품부채",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 3637638140
+      },
+      {
+        "account_id": "dart_CurrentPortionOfBonds",
+        "account_nm": "유동성사채",
+        "thstrm": 600000000,
+        "frmtrm": 600000000,
+        "bfefrmtrm": 600000000
+      },
+      {
+        "account_id": "dart_CurrentPortionOfConvertibleRedeemablePreferredStockLiabilities",
+        "account_nm": "유동성전환상환우선주부채",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 5579195890
+      },
+      {
+        "account_id": "-표준계정코드 미사용-",
+        "account_nm": "유동성 장기 차입금",
+        "thstrm": 1207068926,
+        "frmtrm": 3767065995,
+        "bfefrmtrm": 4144631483
+      },
+      {
+        "account_id": "ifrs-full_CurrentPortionOfLongtermBorrowings",
+        "account_nm": "비유동차입금(사채 포함)의 유동성 대체 부분",
+        "thstrm": 14793000000,
+        "frmtrm": 16248000000,
+        "bfefrmtrm": 14562798985
+      },
+      {
+        "account_id": "ifrs-full_OtherCurrentFinancialLiabilities",
+        "account_nm": "기타유동금융부채",
+        "thstrm": 1553798173,
+        "frmtrm": 1872564548,
+        "bfefrmtrm": 2573559434
+      },
+      {
+        "account_id": "ifrs-full_OtherCurrentLiabilities",
+        "account_nm": "기타 유동부채",
+        "thstrm": 312003433,
+        "frmtrm": 780316718,
+        "bfefrmtrm": 164562595
+      },
+      {
+        "account_id": "ifrs-full_TradeAndOtherCurrentPayables",
+        "account_nm": "매입채무 및 기타유동채무",
+        "thstrm": 3439652810,
+        "frmtrm": 4681598975,
+        "bfefrmtrm": 3906370739
+      },
+      {
+        "account_id": "ifrs-full_Liabilities",
+        "account_nm": "부채총계",
+        "thstrm": 29525946557,
+        "frmtrm": 36621259469,
+        "bfefrmtrm": 54551305023
+      },
+      {
+        "account_id": "ifrs-full_NoncurrentLiabilities",
+        "account_nm": "비유동부채",
+        "thstrm": 7620423215,
+        "frmtrm": 8671713233,
+        "bfefrmtrm": 19382547757
+      },
+      {
+        "account_id": "dart_ExchangeableBonds",
+        "account_nm": "교환사채",
+        "thstrm": 2184527483,
+        "frmtrm": 0,
+        "bfefrmtrm": 3255401204
+      },
+      {
+        "account_id": "dart_LongTermBorrowingsGross",
+        "account_nm": "사채",
+        "thstrm": 1200000000,
+        "frmtrm": 1800000000,
+        "bfefrmtrm": 2400000000
+      },
+      {
+        "account_id": "dart_NonCurrentDerivativeLiabilities",
+        "account_nm": "비유동파생상품부채",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 3000507485
+      },
+      {
+        "account_id": "dart_PostemploymentBenefitObligations",
+        "account_nm": "순확정급여부채",
+        "thstrm": 0,
+        "frmtrm": 197133348,
+        "bfefrmtrm": 444721141
+      },
+      {
+        "account_id": "dart_PresentValueDiscountsLongTermBorrowingsGross",
+        "account_nm": "장기차입금",
+        "thstrm": -4143545267,
+        "frmtrm": -6500970448,
+        "bfefrmtrm": -9933677041
+      },
+      {
+        "account_id": "ifrs-full_OtherNoncurrentFinancialLiabilities",
+        "account_nm": "기타비유동금융부채",
+        "thstrm": 92350465,
+        "frmtrm": 173609437,
+        "bfefrmtrm": 348240886
+      }
+    ],
+    "IS": [],
+    "CF": [
+      {
+        "account_id": "dart_CashAndCashEquivalentsAtBeginningOfPeriodCf",
+        "account_nm": "기초현금및현금성자산",
+        "thstrm": 1194559669,
+        "frmtrm": 1138882020,
+        "bfefrmtrm": 189120080
+      },
+      {
+        "account_id": "dart_CashAndCashEquivalentsAtEndOfPeriodCf",
+        "account_nm": "기말현금및현금성자산",
+        "thstrm": 3855755735,
+        "frmtrm": 1194559669,
+        "bfefrmtrm": 1138882020
+      },
+      {
+        "account_id": "ifrs-full_CashFlowsFromUsedInFinancingActivities",
+        "account_nm": "재무활동현금흐름",
+        "thstrm": -3782229138,
+        "frmtrm": -3012653737,
+        "bfefrmtrm": 5085215438
+      },
+      {
+        "account_id": "dart_AcquisitionOfTreasuryShares",
+        "account_nm": "자기주식의 취득으로 인한 현금의 유출",
+        "thstrm": 655809679,
+        "frmtrm": 0,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_PaymentsOfFinanceLeaseLiabilitiesClassifiedAsFinancingActivities",
+        "account_nm": "리스부채의 지급",
+        "thstrm": 247503528,
+        "frmtrm": 287582671,
+        "bfefrmtrm": 302063623
+      },
+      {
+        "account_id": "dart_ProceedsFromBonds",
+        "account_nm": "사채의 증가",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 3000000000
+      },
+      {
+        "account_id": "dart_ProceedsFromExchangeableBond",
+        "account_nm": "교환사채의 증가",
+        "thstrm": 3398008194,
+        "frmtrm": 0,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_ProceedsFromLongTermBorrowings",
+        "account_nm": "장기차입금의 증가",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 3570000000
+      },
+      {
+        "account_id": "dart_ProceedsFromShortTermBorrowings",
+        "account_nm": "단기차입금의 증가",
+        "thstrm": 8828285842,
+        "frmtrm": 2785243521,
+        "bfefrmtrm": 3357091085
+      },
+      {
+        "account_id": "dart_RepaymentsOfBonds",
+        "account_nm": "사채의 상환",
+        "thstrm": 600000000,
+        "frmtrm": 600000000,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_RepaymentsOfLongTermBorrowings",
+        "account_nm": "장기차입금의 상환",
+        "thstrm": 1049879992,
+        "frmtrm": 200000000,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_RepaymentsOfShortTermBorrowings",
+        "account_nm": "단기차입금의 상환",
+        "thstrm": 10283285842,
+        "frmtrm": 1000042506,
+        "bfefrmtrm": 1481760534
+      },
+      {
+        "account_id": "-표준계정코드 미사용-",
+        "account_nm": "합병으로 인한 증가",
+        "thstrm": 50498125,
+        "frmtrm": 0,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "-표준계정코드 미사용-",
+        "account_nm": "유동성장기부채의 상환",
+        "thstrm": 3867542258,
+        "frmtrm": 3710272081,
+        "bfefrmtrm": 3058051490
+      },
+      {
+        "account_id": "-표준계정코드 미사용-",
+        "account_nm": "주식선택권행사로인한현금유입",
+        "thstrm": 645000000,
+        "frmtrm": 0,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "ifrs-full_CashFlowsFromUsedInInvestingActivities",
+        "account_nm": "투자활동현금흐름",
+        "thstrm": 8164704233,
+        "frmtrm": -4631810008,
+        "bfefrmtrm": -2214715030
+      },
+      {
+        "account_id": "dart_ProceedsFromSalesOfOtherCurrentFinancialAssets",
+        "account_nm": "기타유동금융자산의 처분",
+        "thstrm": 10464879764,
+        "frmtrm": 60000000,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_ProceedsFromSalesOfShortTermFinancialInstruments",
+        "account_nm": "단기금융상품의 처분",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 807837026
+      },
+      {
+        "account_id": "dart_PurchaseOfOtherFinancialAssets",
+        "account_nm": "기타금융자산의 취득",
+        "thstrm": 0,
+        "frmtrm": 35000000,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "dart_PurchaseOfOtherNonCurrentFinancialAssets",
+        "account_nm": "기타비유동금융자산의 취득",
+        "thstrm": 563591944,
+        "frmtrm": 126633655,
+        "bfefrmtrm": 150000000
+      },
+      {
+        "account_id": "dart_PurchaseOfShortTermFinancialInstruments",
+        "account_nm": "단기금융상품의 취득",
+        "thstrm": 0,
+        "frmtrm": 2000000000,
+        "bfefrmtrm": 130000000
+      },
+      {
+        "account_id": "-표준계정코드 미사용-",
+        "account_nm": "기타비유동자산의 증가",
+        "thstrm": 0,
+        "frmtrm": 0,
+        "bfefrmtrm": 311371980
+      },
+      {
+        "account_id": "ifrs-full_ProceedsFromOtherLongtermAssetsClassifiedAsInvestingActivities",
+        "account_nm": "기타비유동성자산 처분 손실",
+        "thstrm": 0,
+        "frmtrm": 26210851,
+        "bfefrmtrm": 365000000
+      },
+      {
+        "account_id": "ifrs-full_ProceedsFromSalesOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
+        "account_nm": "유형자산의 처분",
+        "thstrm": 0,
+        "frmtrm": 2500000,
+        "bfefrmtrm": 0
+      },
+      {
+        "account_id": "ifrs-full_PurchaseOfIntangibleAssetsClassifiedAsInvestingActivities",
+        "account_nm": "무형자산의 취득",
+        "thstrm": 27134200,
+        "frmtrm": 2766800,
+        "bfefrmtrm": 37179480
+      },
+      {
+        "account_id": "ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
+        "account_nm": "유형자산의 취득",
+        "thstrm": 1709449387,
+        "frmtrm": 2556120404,
+        "bfefrmtrm": 2759000596
+      },
+      {
+        "account_id": "ifrs-full_CashFlowsFromUsedInOperatingActivities",
+        "account_nm": "영업활동현금흐름",
+        "thstrm": -1680644705,
+        "frmtrm": 7676666926,
+        "bfefrmtrm": -1920586589
+      },
+      {
+        "account_id": "ifrs-full_AdjustmentsForReconcileProfitLoss",
+        "account_nm": "영업으로부터 창출된 현금흐름",
+        "thstrm": -64080287,
+        "frmtrm": 9307691519,
+        "bfefrmtrm": -165149536
+      },
+      {
+        "account_id": "ifrs-full_IncomeTaxesPaidRefundClassifiedAsOperatingActivities",
+        "account_nm": "법인세환급(납부)",
+        "thstrm": 496301345,
+        "frmtrm": -34302233,
+        "bfefrmtrm": 139879526
+      },
+      {
+        "account_id": "ifrs-full_InterestPaidClassifiedAsOperatingActivities",
+        "account_nm": "이자지급(영업)",
+        "thstrm": 1162393609,
+        "frmtrm": 1707945072,
+        "bfefrmtrm": 1657374926
+      },
+      {
+        "account_id": "ifrs-full_InterestReceivedClassifiedAsOperatingActivities",
+        "account_nm": "이자수취",
+        "thstrm": 42130536,
+        "frmtrm": 42618246,
+        "bfefrmtrm": 41817399
+      },
+      {
+        "account_id": "ifrs-full_IncreaseDecreaseInCashAndCashEquivalents",
+        "account_nm": "현금및현금성자산의순증가(감소)",
+        "thstrm": 2701830390,
+        "frmtrm": 32203181,
+        "bfefrmtrm": 949913819
+      }
+    ]
+  },
+  "stock_code": "460870",
+  "corp_name": "에스엠씨지",
+  "corp_code": "01142260",
+  "bsns_year": "2025"
+}

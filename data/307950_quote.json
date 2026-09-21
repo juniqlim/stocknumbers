@@ -1,15 +1,15 @@
 {
   "stock_code": "307950",
   "stock_name": "현대오토에버",
-  "price": 524000.0,
-  "market_value": 14479900000000,
-  "per": 80.08,
-  "eps": 6593.0,
-  "pbr": 7.95,
-  "bps": 66387.0,
-  "dividend_yield": 0.36,
+  "price": 367500.0,
+  "market_value": 9982300000000,
+  "per": 52.32,
+  "eps": 6957.0,
+  "pbr": 5.28,
+  "bps": 68995.0,
+  "dividend_yield": 0.52,
   "dividend": 1900.0,
   "high_52w": 1066000.0,
-  "low_52w": 145700.0,
-  "bizdate": "20260701"
+  "low_52w": 147600.0,
+  "bizdate": "20260918"
 }

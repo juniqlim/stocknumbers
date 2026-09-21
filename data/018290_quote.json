@@ -1,15 +1,15 @@
 {
   "stock_code": "018290",
   "stock_name": "브이티",
-  "price": 12670.0,
-  "market_value": 442700000000,
-  "per": 7.88,
-  "eps": 1608.0,
-  "pbr": 1.68,
-  "bps": 7550.0,
+  "price": 11740.0,
+  "market_value": 408800000000,
+  "per": 10.52,
+  "eps": 1112.0,
+  "pbr": 1.53,
+  "bps": 7629.0,
   "dividend_yield": null,
   "dividend": null,
-  "high_52w": 45550.0,
-  "low_52w": 12350.0,
-  "bizdate": "20260604"
+  "high_52w": 31450.0,
+  "low_52w": 10290.0,
+  "bizdate": "20260918"
 }

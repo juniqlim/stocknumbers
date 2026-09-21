@@ -1,15 +1,15 @@
 {
   "stock_code": "035600",
   "stock_name": "KG이니시스",
-  "price": 9940.0,
-  "market_value": 281100000000,
-  "per": 5.75,
-  "eps": 1774.0,
-  "pbr": 0.53,
-  "bps": 19351.0,
-  "dividend_yield": 5.88,
+  "price": 9970.0,
+  "market_value": 273900000000,
+  "per": 5.4,
+  "eps": 1841.0,
+  "pbr": 0.5,
+  "bps": 19823.0,
+  "dividend_yield": 6.04,
   "dividend": 600.0,
-  "high_52w": 14760.0,
-  "low_52w": 9050.0,
-  "bizdate": "20260611"
+  "high_52w": 12450.0,
+  "low_52w": 8920.0,
+  "bizdate": "20260918"
 }
